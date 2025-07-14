@@ -1,7 +1,6 @@
 export interface HistoricalDataPoint {
   time: string;
   surfaceTemp: number;
-  ambientTemp: number;
   voltage: number;
   power: number;
 }

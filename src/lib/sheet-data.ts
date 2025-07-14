@@ -1,16 +1,30 @@
 import Papa from "papaparse";
 
-const CSV_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXHDX6mbNMBNzU8td9c4Qt-lXLACPS_QKbXNRkmZd3afctmSiuUkxmefJwSLFUiE0_HlymKLR7QlDf/pub?output=csv";
+export const METRICS_CSV_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQuwyufJenCPrGJl-DelPbHxC1o-7SfNPNLAY1ClRxRIQsdZf_Vk4EuXoYlc-C_r3lMSygEkp428fpg/pub?gid=0&single=true&output=csv";
+export const PUMPLOGS_CSV_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQuwyufJenCPrGJl-DelPbHxC1o-7SfNPNLAY1ClRxRIQsdZf_Vk4EuXoYlc-C_r3lMSygEkp428fpg/pub?gid=217517940&single=true&output=csv";
 
-export async function fetchSheetCSV(): Promise<string> {
-  const response = await fetch(CSV_URL);
-  if (!response.ok) throw new Error("Failed to fetch Google Sheet CSV");
+export async function fetchMetricsCSV(): Promise<string> {
+  const response = await fetch(METRICS_CSV_URL);
+  if (!response.ok) throw new Error("Failed to fetch Metrics CSV");
   return await response.text();
 }
 
-export async function getSheetData<T = any>(): Promise<T[]> {
-  const csv = await fetchSheetCSV();
+export async function fetchPumpLogsCSV(): Promise<string> {
+  const response = await fetch(PUMPLOGS_CSV_URL);
+  if (!response.ok) throw new Error("Failed to fetch Pump Logs CSV");
+  return await response.text();
+}
+
+export async function getMetricsData<T = any>(): Promise<T[]> {
+  const csv = await fetchMetricsCSV();
+  const { data } = Papa.parse<T>(csv, { header: true });
+  return data;
+}
+
+export async function getPumpLogsData<T = any>(): Promise<T[]> {
+  const csv = await fetchPumpLogsCSV();
   const { data } = Papa.parse<T>(csv, { header: true });
   return data;
 }

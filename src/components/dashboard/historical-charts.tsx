@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getSheetData } from "@/lib/sheet-data";
+import { getMetricsData, getPumpLogsData } from "@/lib/sheet-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartContainer,
@@ -29,10 +29,6 @@ const chartConfig = {
   surfaceTemp: {
     label: "Surface Temp (°C)",
     color: "hsl(var(--primary))",
-  },
-  ambientTemp: {
-    label: "Ambient Temp (°C)",
-    color: "hsl(var(--accent))",
   },
   voltage: {
     label: "Voltage (V)",
@@ -63,28 +59,27 @@ export function HistoricalCharts() {
   const [pumpLogs, setPumpLogs] = useState<PumpLog[]>([]);
 
   useEffect(() => {
-    // Fetch data from Google Sheet CSV
-    getSheetData<any>().then((rows) => {
-      // Assume the sheet has columns for both historical and pump log data
-      // You may need to adjust this mapping based on your sheet structure
+    // Fetch historical data directly from Google Sheets
+    getMetricsData().then((rows) => {
       const historical: HistoricalDataPoint[] = rows
         .filter(
-          (row) =>
-            row.time &&
-            row.surfaceTemp &&
-            row.ambientTemp &&
-            row.voltage &&
-            row.power
+          (r) =>
+            r.time &&
+            r.surfaceTemp !== undefined &&
+            r.voltage !== undefined &&
+            r.power !== undefined
         )
-        .map((row) => ({
-          time: row.time,
-          surfaceTemp: parseFloat(row.surfaceTemp),
-          ambientTemp: parseFloat(row.ambientTemp),
-          voltage: parseFloat(row.voltage),
-          power: parseFloat(row.power),
+        .map((r) => ({
+          time: r.time,
+          surfaceTemp: parseFloat(r.surfaceTemp),
+          voltage: parseFloat(r.voltage),
+          power: parseFloat(r.power),
         }));
       setHistoricalData(historical);
+    });
 
+    // Fetch pump logs directly from Google Sheets
+    getPumpLogsData().then((rows) => {
       const pump: PumpLog[] = rows
         .filter(
           (row) =>
@@ -140,13 +135,6 @@ export function HistoricalCharts() {
                   tick={{ fill: "hsl(var(--primary))" }}
                   fontSize={12}
                 />
-                <YAxis
-                  yAxisId="right"
-                  orientation="right"
-                  stroke="hsl(var(--accent))"
-                  tick={{ fill: "hsl(var(--accent))" }}
-                  fontSize={12}
-                />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <Line
                   yAxisId="left"
@@ -156,15 +144,6 @@ export function HistoricalCharts() {
                   strokeWidth={2}
                   dot={false}
                   name="Surface Temp"
-                />
-                <Line
-                  yAxisId="right"
-                  type="monotone"
-                  dataKey="ambientTemp"
-                  stroke="hsl(var(--accent))"
-                  strokeWidth={2}
-                  dot={false}
-                  name="Ambient Temp"
                 />
               </LineChart>
             </ResponsiveContainer>

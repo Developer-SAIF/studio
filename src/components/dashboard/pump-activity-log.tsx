@@ -1,6 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+
+interface PumpLog {
+  id: number;
+  timestamp: string;
+  preCoolTemp: number;
+  postCoolTemp: number;
+  duration: string;
+}
 import {
   Card,
   CardContent,
@@ -20,8 +28,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { PumpLog } from "@/lib/types";
-import { getSheetData } from "@/lib/sheet-data";
+import { getPumpLogsData } from "@/lib/sheet-data";
 
 // ...existing code...
 
@@ -33,8 +40,8 @@ export function PumpActivityLog({ className }: PumpActivityLogProps) {
   const [pumpLogs, setPumpLogs] = useState<PumpLog[]>([]);
 
   useEffect(() => {
-    // Fetch pump logs from Google Sheet CSV
-    getSheetData<any>().then((rows) => {
+    // Fetch pump logs directly from Google Sheets
+    getPumpLogsData().then((rows) => {
       const pump: PumpLog[] = rows
         .filter(
           (row) =>
